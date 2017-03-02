@@ -3,8 +3,8 @@ package main
 import (
 	"os"
 
-	giddyupApp "github.com/cloudnautique/giddyup/app"
-	"github.com/cloudnautique/giddyup/version"
+	giddyupApp "github.com/aslafy-z/giddyup/app"
+	"github.com/aslafy-z/giddyup/version"
 	"github.com/urfave/cli"
 )
 
