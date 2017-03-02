@@ -57,6 +57,10 @@ func IPCommand() cli.Command {
 						Name:  "use-agent-names",
 						Usage: "Use agent name instead of rancher ips, only works with metadata source",
 					},
+					cli.BoolFlag{
+						Name:  "use-container-names",
+						Usage: "Use container names instead of ips, only works with metadata source",
+					},
 				},
 			}, {
 				Name:   "myip",
@@ -177,6 +181,10 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	if c.Bool("use-agent-names") {
 		getMetaIPMethod = getMetadataAgentNames
 	}
+	
+	if c.Bool("use-container-names") {
+		getMetaIPMethod = getMetadataContainerNames
+	}
 
 	if len(split) == 2 {
 		ips, err := getMetaIPMethod(split[0], split[1])
@@ -209,19 +217,38 @@ func getSelfStackServiceName() ([]string, error) {
 }
 
 func getMetadataContainerIPs(stack string, service string) ([]string, error) {
-	rIPs := []string{}
+	return getMetadataContainerInfoStrings(stack, service, "PrimaryIp")
+}
+
+func getMetadataContainerNames(stack string, service string) ([]string, error) {
+	return getMetadataContainerInfoStrings(stack, service, "Name")
+}
+
+func getMetadataContainerInfoStrings(stack, service, property string) ([]string, error) {
+	rInfo := []string{}
 	mdClient, _ := metadata.NewClientAndWait(metadataURL)
 
 	containers, err := mdClient.GetServiceContainers(service, stack)
 	if err != nil {
-		return rIPs, err
+		return rInfo, err
 	}
 
 	for _, container := range containers {
-		rIPs = append(rIPs, container.PrimaryIp)
+		rInfo = append(rIPs, getContainerInfoProperty(&container, property))
 	}
 
-	return rIPs, nil
+	return rInfo, nil
+}
+
+func getContainerInfoProperty(container *metadata.Container, property string) string {
+	switch {
+	case property == "Name":
+		return host.Name
+	case property == "PrimaryIp":
+		return host.PrimaryIp
+	default:
+		return ""
+	}
 }
 
 func getMetadataAgentIPs(stack string, service string) ([]string, error) {
