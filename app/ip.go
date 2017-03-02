@@ -181,7 +181,7 @@ func ipStringifyMetadata(c *cli.Context) (string, error) {
 	if c.Bool("use-agent-names") {
 		getMetaIPMethod = getMetadataAgentNames
 	}
-	
+
 	if c.Bool("use-container-names") {
 		getMetaIPMethod = getMetadataContainerNames
 	}
@@ -234,7 +234,7 @@ func getMetadataContainerInfoStrings(stack, service, property string) ([]string,
 	}
 
 	for _, container := range containers {
-		rInfo = append(rIPs, getContainerInfoProperty(&container, property))
+		rInfo = append(rInfo, getContainerInfoProperty(&container, property))
 	}
 
 	return rInfo, nil
@@ -243,9 +243,9 @@ func getMetadataContainerInfoStrings(stack, service, property string) ([]string,
 func getContainerInfoProperty(container *metadata.Container, property string) string {
 	switch {
 	case property == "Name":
-		return host.Name
+		return container.Name
 	case property == "PrimaryIp":
-		return host.PrimaryIp
+		return container.PrimaryIp
 	default:
 		return ""
 	}
